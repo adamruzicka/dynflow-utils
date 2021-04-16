@@ -18,6 +18,9 @@ jobs:
       with:
         go-version: 1.15
 
+    - name: Get dependencies
+      run: go get github.com/vmihailenco/msgpack
+
     - name: Build
       run: go build -v ./...
 
