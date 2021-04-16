@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"github.com/vmihailenco/msgpack"
 	"io"
 	"os"
@@ -172,11 +173,28 @@ func expand_execution_plan(record []string) []string {
 }
 
 func main() {
+	if len(os.Args) != 2 {
+		fmt.Fprintf(os.Stderr, "Wrong number of arguments, expected 1.\n")
+		os.Exit(1)
+	}
+
+	var expansion_f func([]string) []string
+
+	switch os.Args[1] {
+	case "action":
+		expansion_f = expand_action
+	case "step":
+		expansion_f = expand_step
+	case "execution_plan":
+		expansion_f = expand_execution_plan
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown argument '%s', expected one of 'action', 'step' or 'execution_plan'\n", os.Args[1])
+		os.Exit(1)
+	}
+
 	reader := csv.NewReader(os.Stdin)
 	writer := csv.NewWriter(os.Stdout)
 	defer writer.Flush()
-
-	expansion_f := expand_execution_plan
 
 	for {
 		record, err := reader.Read()
